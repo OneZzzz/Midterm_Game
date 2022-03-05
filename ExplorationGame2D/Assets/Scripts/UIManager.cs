@@ -11,12 +11,15 @@ public class UIManager : MonoBehaviour
         instance = this;
     }
     private Text scoreText;
-    private GameObject dia;
+    private GameObject dia,tips,task;
     private Text diaText;
     private List<string> diaMessages;
     private int diaIndex;
 
     public static bool isInDiaState;
+
+    public int taskNumber=0;
+    public int currentTaskNumber;
 
     private bool currentIsShow;
 
@@ -25,9 +28,12 @@ public class UIManager : MonoBehaviour
         isInDiaState = false;
         scoreText = transform.Find("score").GetComponent<Text>();
         dia = transform.GetChild(1).gameObject;
+        tips = transform.GetChild(2).gameObject;
+        task = transform.GetChild(3).gameObject;
         diaText = dia.GetComponentInChildren<Text>();
         dia.SetActive(false);
         ShowScore(0);
+        ShowTaskMessage();
     }
     private void LateUpdate()
     {
@@ -48,7 +54,6 @@ public class UIManager : MonoBehaviour
     public void ShowDialo(List<string> messages)
     {
         if (dia.activeSelf) return;
-        print(messages[0]);
         isInDiaState = true;
         diaMessages = messages;
         diaIndex = 0;
@@ -71,5 +76,34 @@ public class UIManager : MonoBehaviour
             diaIndex++;
         }
 
+    }
+    public void ShowTips(string message)
+    {
+        tips.SetActive(true);
+        Text text = tips.GetComponentInChildren<Text>();
+        text.text = message;
+        Invoke("CloseTips", 3f);
+    }
+    private void CloseTips()
+    {
+        tips.SetActive(false);
+    }
+
+    public void FindTaskApple()
+    {
+       GameObject go=  Resources.Load<GameObject>("appleUI");
+        Instantiate(go, task.transform.GetChild(0));
+        currentTaskNumber++;
+        ShowTaskMessage();
+    }
+    private void ShowTaskMessage()
+    {
+        Text te= task.GetComponent<Text>();
+        if (taskNumber == 0)
+            te.text = "";
+        else if (currentTaskNumber < taskNumber)
+            te.text = "Task:find " + (taskNumber - currentTaskNumber) + " apple";
+        else
+            te.text = "Mission accomplished!";
     }
 }

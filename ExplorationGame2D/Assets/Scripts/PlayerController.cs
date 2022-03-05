@@ -15,9 +15,11 @@ public class PlayerController : MonoBehaviour
 
     private  float speed=8f;
     private float cameraFollowSpeed=6;
+    private float cameraFollowOffsetY = 2;
     private float jumpForce=600;
 
-    private int score = 0;
+    [HideInInspector]
+    public int score = 0;
 
     public Transform checkPoint01,checkPoint02,forwardCheckPoint;
 
@@ -27,8 +29,6 @@ public class PlayerController : MonoBehaviour
 
     public bool isFindKey;
 
-    public Transform door;
-    public BoxCollider2D boxCollider;
 
     private void Start()
     {
@@ -52,7 +52,7 @@ public class PlayerController : MonoBehaviour
     void FowardCheck()
     {
         if (UIManager.isInDiaState) return;
-        if (Input.GetKeyDown(KeyCode.J) || Input.GetMouseButtonDown(0))
+        if (Input.GetKeyDown(KeyCode.J))
         {
             Vector3 dir;
             if (transform.localScale.x == -1)
@@ -60,43 +60,13 @@ public class PlayerController : MonoBehaviour
             else
                 dir = Vector3.right;
 
-            RaycastHit2D raycastHit2D = Physics2D.Raycast(forwardCheckPoint.position, dir,1f);
-            if (raycastHit2D)
-            {
-                if (raycastHit2D.collider.gameObject.tag == "door")
-                {
-                    if (!isFindKey) return;
-                    door.eulerAngles = new Vector3(0, 0, 0);
-                    boxCollider.enabled = false;
-                    AudioManager.instance.PlayAudio(AudioManager.instance.openDoor);
-                }
+            RaycastHit2D raycastHit2D = Physics2D.Raycast(forwardCheckPoint.position, dir, 1f);
+            if (!raycastHit2D) return;
 
-                if (raycastHit2D.collider.gameObject.tag == "NPC")
-                {
-                    if (Input.GetKeyDown(KeyCode.J) || Input.GetKeyDown(KeyCode.Space))
-                        raycastHit2D.collider.gameObject.GetComponent<NPCController>().NPCEvent();
-                }
-                else if (raycastHit2D.collider.gameObject.tag == "TaskNpc")
-                {
-                    if (Input.GetKeyDown(KeyCode.J) || Input.GetKeyDown(KeyCode.Space))
-                    {
-                        if (isFindGem)
-                        {
-                            isFindKey = true;
-                            raycastHit2D.collider.gameObject.GetComponent<TaskNpc>().ElseNpcEvent();
-
-                            AudioManager.instance.PlayAudio(AudioManager.instance.key);
-                        }
-                        else
-                        {
-                            raycastHit2D.collider.gameObject.GetComponent<TaskNpc>().NPCEvent();
-
-                        }
-                    }
-                }
+            if (raycastHit2D.collider.gameObject.CompareTag("trigger") && raycastHit2D.collider.gameObject.GetComponent<ILevelEvent>() != null)
+                raycastHit2D.collider.gameObject.GetComponent<ILevelEvent>().LevelEvent();
 
 
-            }
         }
     }
 
@@ -115,7 +85,7 @@ public class PlayerController : MonoBehaviour
     }
     bool CheckInGround(Transform checkPoint)
     {
-        RaycastHit2D raycastHit2D=  Physics2D.Raycast(checkPoint.position, Vector2.down, 0.05f);
+        RaycastHit2D raycastHit2D=  Physics2D.Raycast(checkPoint.position, Vector2.down, 0.1f);
         if (raycastHit2D)
         {
             if(raycastHit2D.collider.gameObject.tag == "ground")
@@ -132,7 +102,9 @@ public class PlayerController : MonoBehaviour
         {
             if (CheckInGround(checkPoint01) || CheckInGround(checkPoint02))
             {
-                GetComponent<Rigidbody2D>().AddForce(Vector2.up * jumpForce);
+                Rigidbody2D rg= GetComponent<Rigidbody2D>();
+                rg.velocity = new Vector3(rg.velocity.x, 0, 0);
+                rg.AddForce(Vector2.up * jumpForce);
                 anim.SetTrigger("jump");
                 AudioManager.instance.PlayAudio(AudioManager.instance.jump);
             }
@@ -140,99 +112,60 @@ public class PlayerController : MonoBehaviour
     }
     void CameraFallow()
     {
-        print(11);
-        float distance = Vector3.Distance(Camera.main.transform.position, new Vector3(transform.position.x, 0, -10));
-        int dirction=(transform.position.x - Camera.main.transform.position.x > 0)? 1 : -1;
-        if (distance < 0.03f) return;
-        else if (distance <= 3)
+        float distanceX = transform.position.x - Camera.main.transform.position.x;
+
+        float distanceY = transform.position.y+ cameraFollowOffsetY - Camera.main.transform.position.y;
+
+        if (Mathf.Abs( distanceX) > 0.1f)
         {
-            Camera.main.transform.Translate(1 * cameraFollowSpeed * Time.deltaTime*dirction, 0, 0);
+            int dirctionX = (distanceX > 0) ? 1 : -1;
+            if (distanceX <= 3)
+            {
+                Camera.main.transform.Translate(cameraFollowSpeed * Time.deltaTime * dirctionX, 0, 0);
+            }
+            else
+            {
+                Camera.main.transform.Translate(speed * Time.deltaTime * dirctionX, 0, 0);
+            }
         }
-        else
+        if (Mathf.Abs(distanceY) > 0.1f)
         {
-            Camera.main.transform.Translate(1 * speed * Time.deltaTime *dirction, 0, 0);
+            int dirctionY = (distanceY > 0) ? 1 : -1;
+            if (distanceY <= 3)
+            {
+                Camera.main.transform.Translate(0, cameraFollowSpeed * Time.deltaTime * dirctionY, 0);
+            }
+            else
+            {
+                Camera.main.transform.Translate(0, speed * Time.deltaTime * dirctionY, 0);
+            }
         }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.CompareTag("deadline"))
+        if (collision.gameObject.CompareTag("trigger"))
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            IGameEvent[] its = collision.gameObject.GetComponents<IGameEvent>();
+            for (int i = 0; i < its.Length; i++)
+            {
+                its[i].GameEvent();
+            }
+            
         }
-        else if (collision.gameObject.CompareTag("Gold"))
-        {
-            score++;
-            Destroy(collision.gameObject);
-            UIManager.instance.ShowScore(score);
-            AudioManager.instance.PlayAudio(AudioManager.instance.coin);
-        }
-        else if (collision.gameObject.CompareTag("gem"))
-        {
-            isFindGem = true;
-            AudioManager.instance.PlayAudio(AudioManager.instance.gem);
-            Destroy(collision.gameObject);
-        }
-        else if (collision.gameObject.CompareTag("enemy"))
-        {
-            Destroy(collision.gameObject);
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-        }
-        else if (collision.gameObject.CompareTag("startCreat"))
-        {
-            EnemyCreater.instance.StartCreat();
-        }
-        else if (collision.gameObject.CompareTag("stopCreat"))
-        {
-            EnemyCreater.instance.StopCreat() ;
-        }
-        else if (collision.gameObject.CompareTag("endpoint"))
-        {
-            SceneController co= collision.gameObject.GetComponent<SceneController>();
-            if (co == null) return;
-            co.EndPointChangeScene();
-        }
+        
     }
-    //private void OnTriggerStay2D(Collider2D collision)
-    //{
-    //    if (collision.gameObject.CompareTag("NPC"))
-    //    {
-    //        if (Input.GetKeyDown(KeyCode.J) || Input.GetKeyDown(KeyCode.Space))
-    //            collision.GetComponent<NPCController>().NPCEvent();
-    //    }
-    //    else if (collision.gameObject.CompareTag("TaskNpc"))
-    //    {
-    //        if (Input.GetKeyDown(KeyCode.J) || Input.GetKeyDown(KeyCode.Space))
-    //        {
-    //            if (isFindGem)
-    //            {
-    //                isFindKey = true;
-    //                collision.GetComponent<TaskNpc>().ElseNpcEvent();
-    //                AudioManager.instance.PlayAudio(AudioManager.instance.key);
-    //            }
-    //            else
-    //            {
-    //                collision.GetComponent<TaskNpc>().NPCEvent();
-                    
-    //            }
-    //        }
-    //    }
-    //}
+    
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if(collision.gameObject.CompareTag("enemy"))
-        {
-            Destroy(collision.gameObject);
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-        }
-        else if (collision.gameObject.CompareTag("door"))
-        {
-            if (!isFindKey) return;
-            door.eulerAngles = new Vector3(0, 0, 0);
-            boxCollider.enabled = false;
-            AudioManager.instance.PlayAudio(AudioManager.instance.openDoor);
-        }
+
+    }
+
+    public void MoveTargetRaw(Vector3 pos)
+    {
+        transform.position = pos;
+        Camera.main.transform.position = new Vector3(pos.x,pos.y,-10);
     }
 
 }

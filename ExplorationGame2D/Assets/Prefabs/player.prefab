@@ -162,11 +162,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 03da465d66ebb2048b38b33a28cb5401, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 4.5
-  jumpForce: 420
   checkPoint01: {fileID: 7831471322627015490}
   checkPoint02: {fileID: 3453138132534355722}
   forwardCheckPoint: {fileID: 7831471322164781806}
+  isFindGem: 0
   isFindKey: 0
   door: {fileID: 0}
   boxCollider: {fileID: 0}
@@ -185,7 +184,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDrag: 0
   m_AngularDrag: 0.05
-  m_GravityScale: 1
+  m_GravityScale: 2
   m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 1
