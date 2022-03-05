@@ -9,7 +9,7 @@ public class EnemyController : MonoBehaviour
 
     private void Start()
     {
-        InvokeRepeating("AddSpeed", 2, 1);
+        InvokeRepeating("AddSpeed", 1, 0.5f);
     }
 
     public void Init()

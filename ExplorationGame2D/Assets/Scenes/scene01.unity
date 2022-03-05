@@ -28817,6 +28817,10 @@ PrefabInstance:
       propertyPath: boxCollider
       value: 
       objectReference: {fileID: 1567010132}
+    - target: {fileID: 7831471322556550665, guid: b980b810dfa665546a38f72c964dfef6, type: 3}
+      propertyPath: m_GravityScale
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 7831471322556550667, guid: b980b810dfa665546a38f72c964dfef6, type: 3}
       propertyPath: m_RootOrder
       value: 1
