@@ -15,6 +15,7 @@ public class UIManager : MonoBehaviour
     private Text diaText;
     private List<string> diaMessages;
     private int diaIndex;
+    private Image life;
 
     public static bool isInDiaState;
 
@@ -31,6 +32,7 @@ public class UIManager : MonoBehaviour
         tips = transform.GetChild(2).gameObject;
         task = transform.GetChild(3).gameObject;
         diaText = dia.GetComponentInChildren<Text>();
+        life = transform.Find("life").GetChild(0).GetComponent<Image>();
         dia.SetActive(false);
         ShowScore(0);
         ShowTaskMessage();
@@ -105,5 +107,9 @@ public class UIManager : MonoBehaviour
             te.text = "Task:find " + (taskNumber - currentTaskNumber) + " apple";
         else
             te.text = "Mission accomplished!";
+    }
+    public void ShowLife(float hp)
+    {
+        life.fillAmount = hp;
     }
 }
