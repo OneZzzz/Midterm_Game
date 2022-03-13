@@ -30,6 +30,5 @@ public class EnemyController : MonoBehaviour
     private void AddSpeed()
     {
         GetComponent<Rigidbody2D>().AddForce(Vector2.left * addForce);
-        print("add");
     }
 }

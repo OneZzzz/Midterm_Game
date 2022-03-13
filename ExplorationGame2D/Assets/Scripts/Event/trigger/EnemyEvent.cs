@@ -7,8 +7,7 @@ namespace Assets.Scripts.game
     {
         public override void GameEvent()
         {
-            Destroy(gameObject);
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            PlayerController.instance.LoadPoint();
         }
     }
 }

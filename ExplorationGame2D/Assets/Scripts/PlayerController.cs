@@ -29,6 +29,9 @@ public class PlayerController : MonoBehaviour
 
     public bool isFindKey;
 
+    [HideInInspector]
+    public Vector3 savePoint;
+
 
     private void Start()
     {
@@ -116,7 +119,7 @@ public class PlayerController : MonoBehaviour
 
         float distanceY = transform.position.y+ cameraFollowOffsetY - Camera.main.transform.position.y;
 
-        if (Mathf.Abs( distanceX) > 0.1f)
+        if (Mathf.Abs( distanceX) > 0.2f)
         {
             int dirctionX = (distanceX > 0) ? 1 : -1;
             if (distanceX <= 3)
@@ -128,7 +131,7 @@ public class PlayerController : MonoBehaviour
                 Camera.main.transform.Translate(speed * Time.deltaTime * dirctionX, 0, 0);
             }
         }
-        if (Mathf.Abs(distanceY) > 0.1f)
+        if (Mathf.Abs(distanceY) > 0.2f)
         {
             int dirctionY = (distanceY > 0) ? 1 : -1;
             if (distanceY <= 3)
@@ -167,5 +170,15 @@ public class PlayerController : MonoBehaviour
         transform.position = pos;
         Camera.main.transform.position = new Vector3(pos.x,pos.y,-10);
     }
-
+    public void SavePoint()
+    {
+        savePoint = transform.position;
+    }
+    public void LoadPoint()
+    {
+        if (savePoint == null || savePoint==Vector3.zero )
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        else
+            MoveTargetRaw(savePoint);
+    }
 }

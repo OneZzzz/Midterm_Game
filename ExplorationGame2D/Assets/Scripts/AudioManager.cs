@@ -10,7 +10,7 @@ public class AudioManager : MonoBehaviour
         if (instance == null) instance = this;
     }
 
-    public AudioClip jump, run, gem, coin, openDoor, key;
+    public AudioClip jump, run, gem, coin, openDoor, key,save;
 
 
     AudioSource audioSource;
