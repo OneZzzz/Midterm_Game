@@ -10,10 +10,7 @@ namespace Assets.Scripts.game
         {
             if (UIManager.instance.currentTaskNumber >= UIManager.instance.taskNumber)
             {
-
-                SceneController co = GetComponent<SceneController>();
-                if (co == null) return;
-                co.EndPointChangeScene();
+                UIManager.instance.ShowWinUI();
             }
             else
             {

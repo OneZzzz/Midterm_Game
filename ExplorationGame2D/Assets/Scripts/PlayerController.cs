@@ -196,7 +196,7 @@ public class PlayerController : MonoBehaviour
         if (x > 0)
             UIManager.instance.ShowLife(x);
         else
-            LoadPoint();
+            UIManager.instance.ShowLoseUI() ;
     }
     public void AddHp()
     {

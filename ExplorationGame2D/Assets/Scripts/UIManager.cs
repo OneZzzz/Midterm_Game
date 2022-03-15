@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class UIManager : MonoBehaviour
 {
@@ -24,6 +25,9 @@ public class UIManager : MonoBehaviour
 
     private bool currentIsShow;
 
+
+    private GameObject winUI, loseUI;
+
     private void Start()
     {
         isInDiaState = false;
@@ -31,6 +35,8 @@ public class UIManager : MonoBehaviour
         dia = transform.GetChild(1).gameObject;
         tips = transform.GetChild(2).gameObject;
         task = transform.GetChild(3).gameObject;
+        winUI = transform.GetChild(5).gameObject;
+        loseUI = transform.GetChild(6).gameObject;
         diaText = dia.GetComponentInChildren<Text>();
         life = transform.Find("life").GetChild(0).GetComponent<Image>();
         dia.SetActive(false);
@@ -112,4 +118,34 @@ public class UIManager : MonoBehaviour
     {
         life.fillAmount = hp;
     }
+    public void ShowWinUI()
+    {
+        Time.timeScale = 0;
+        winUI.SetActive(true);
+    }
+    public void ShowLoseUI()
+    {
+        Time.timeScale = 0;
+        loseUI.SetActive(true);
+    }
+    public void ReturnButton()
+    {
+        Time.timeScale = 1;
+        SceneManager.LoadScene(0);
+    }
+    public void WinEnterNextLevel()
+    {
+        Time.timeScale = 1;
+        winUI.SetActive(false);
+        SceneController co = GameObject.FindObjectOfType<SceneController>();
+        if (co == null) return;
+        co.EndPointChangeScene();
+    }
+    public void LoseRestartLevel()
+    {
+        loseUI.SetActive(false);
+        Time.timeScale = 1;
+        PlayerController.instance.LoadPoint();
+    }
+
 }
